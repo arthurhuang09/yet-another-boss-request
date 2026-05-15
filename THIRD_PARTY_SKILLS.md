@@ -8,7 +8,19 @@ This repository does not vendor third-party skills by default. Use `third-party-
 node scripts/install-third-party-skills.js --yes
 ```
 
-Default installation only includes skills with confirmed permissive licenses.
+Default installation only includes skills with confirmed permissive licenses. Install targets are per tool:
+
+| Tool | Target |
+| --- | --- |
+| `opencode` | `.agents/skills` |
+| `claude-code` | `.claude/skills` |
+| `codex` | `.codex/skills` |
+
+```sh
+node scripts/install-third-party-skills.js --tool opencode --yes
+node scripts/install-third-party-skills.js --tool claude-code --yes
+node scripts/install-third-party-skills.js --tool codex --yes
+```
 
 ## List Skills
 
@@ -41,4 +53,4 @@ Do not install restricted skills unless you have reviewed and accepted their ori
 
 ## Memory Marker
 
-After installation, the script writes the `memory/index.json` field `thirdPartySkills.initializedAt`. Yet Another Boss Request uses this marker to know whether it should guide the user through third-party skill setup.
+After installation, the script writes `memory/index.json` under `thirdPartySkills.<tool>.initializedAt`. Yet Another Boss Request uses this per-tool marker to know whether it should guide the user through third-party skill setup.

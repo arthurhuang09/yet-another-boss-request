@@ -14,10 +14,10 @@ Before responding, read:
 - `memory/index.json`
 - `cool-things/*/state.md`
 
-If `memory/index.json` does not contain `thirdPartySkills.initializedAt`, third-party skills are not initialized. Before starting formal work, ask whether to install the recommended third-party skills. If the user agrees, run:
+If `memory/index.json` does not contain the current tool's `thirdPartySkills.<tool>.initializedAt`, third-party skills are not initialized for that tool. Before starting formal work, use AskUserQuestion to ask whether to install the recommended third-party skills. If the user agrees, run the matching command:
 
 ```sh
-node scripts/install-third-party-skills.js --yes
+node scripts/install-third-party-skills.js --tool <tool> --yes
 ```
 
 If there is an active or unfinished cool thing, summarize it first and ask whether to resume it or start a new one.

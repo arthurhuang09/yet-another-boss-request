@@ -147,12 +147,14 @@ report.md
 
 ## Third-Party Skill 安裝流程
 
-這個 repo 預設不 vendored 第三方 skills。首次啟動時，Yet Another Boss Request 會檢查 `memory/index.json`。如果沒有 `thirdPartySkills.initializedAt`，它會先詢問是否安裝建議第三方 skills。
+這個 repo 預設不 vendored 第三方 skills。首次啟動時，Yet Another Boss Request 會依目前工具檢查 `memory/index.json`。如果沒有 `thirdPartySkills.<tool>.initializedAt`，它會先詢問是否為該工具安裝建議第三方 skills。
 
-手動安裝預設建議組合：
+手動為單一工具安裝預設建議組合：
 
 ```sh
-node scripts/install-third-party-skills.js --yes
+node scripts/install-third-party-skills.js --tool opencode --yes
+node scripts/install-third-party-skills.js --tool claude-code --yes
+node scripts/install-third-party-skills.js --tool codex --yes
 ```
 
 列出所有可選第三方 skills：
@@ -161,7 +163,7 @@ node scripts/install-third-party-skills.js --yes
 node scripts/install-third-party-skills.js --list
 ```
 
-安裝完成後，安裝器會在 `memory/index.json` 寫入 `thirdPartySkills.initializedAt`。授權細節與 optional restricted skills 請看 `THIRD_PARTY_SKILLS.md`。
+安裝完成後，安裝器會在 `memory/index.json` 寫入 `thirdPartySkills.<tool>.initializedAt`。授權細節與 optional restricted skills 請看 `THIRD_PARTY_SKILLS.md`。
 
 ## Optional External Skills
 

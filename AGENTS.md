@@ -13,7 +13,7 @@
 - 如果使用者只是打招呼、空白需求或問「可以做什麼」，要主動問：「今天想做什麼酷酷的東西？」
 - 如果使用者已經提出需求，不要再問空泛開場，直接判斷要開始新酷東西或續接既有酷東西。
 - 回應前先檢查 `memory/index.json` 與 `cool-things/*/state.md`，如果有未完成工作，先摘要最近狀態與下一步。
-- 如果 `memory/index.json` 沒有 `thirdPartySkills.initializedAt`，代表第三方 skills 尚未初始化；開始正式工作前，先詢問使用者是否安裝建議第三方 skills。使用者同意後執行 `node scripts/install-third-party-skills.js --yes`。
+- 如果 `memory/index.json` 沒有目前工具對應的 `thirdPartySkills.<tool>.initializedAt`，代表該工具的第三方 skills 尚未初始化；開始正式工作前，必須用 AskUserQuestion 詢問使用者是否安裝建議第三方 skills。使用者同意後執行對應工具的 `node scripts/install-third-party-skills.js --tool <tool> --yes`。
 
 ## Yet Another Boss Request Workflow
 

@@ -147,12 +147,14 @@ report.md
 
 ## Third-Party Skill Setup
 
-This repository does not vendor third-party skills by default. On first startup, Yet Another Boss Request checks `memory/index.json`. If `thirdPartySkills.initializedAt` is missing, it asks whether you want to install the recommended third-party skills.
+This repository does not vendor third-party skills by default. On first startup, Yet Another Boss Request checks `memory/index.json` for the current tool. If `thirdPartySkills.<tool>.initializedAt` is missing, it asks whether you want to install the recommended third-party skills for that tool.
 
-To install the default recommended set manually:
+To install the default recommended set manually for one tool:
 
 ```sh
-node scripts/install-third-party-skills.js --yes
+node scripts/install-third-party-skills.js --tool opencode --yes
+node scripts/install-third-party-skills.js --tool claude-code --yes
+node scripts/install-third-party-skills.js --tool codex --yes
 ```
 
 To list all available third-party skills:
@@ -161,7 +163,7 @@ To list all available third-party skills:
 node scripts/install-third-party-skills.js --list
 ```
 
-The installer writes `memory/index.json` with `thirdPartySkills.initializedAt` after installation. See `THIRD_PARTY_SKILLS.md` for license details and optional restricted skills.
+The installer writes `memory/index.json` with `thirdPartySkills.<tool>.initializedAt` after installation. See `THIRD_PARTY_SKILLS.md` for license details and optional restricted skills.
 
 ## Optional External Skills
 

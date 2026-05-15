@@ -22,7 +22,7 @@ function findProjectRoot(start) {
 
 function loadNavigatorContext(root) {
   const script = path.join(root, "scripts", "yet-another-boss-request-hook.js")
-  const result = spawnSync("node", [script], {
+  const result = spawnSync("node", [script, "--tool", "opencode"], {
     cwd: root,
     encoding: "utf8",
   })

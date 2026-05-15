@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "node",
-            "args": ["${CLAUDE_PROJECT_DIR}/scripts/yet-another-boss-request-hook.js"],
+            "args": ["${CLAUDE_PROJECT_DIR}/scripts/yet-another-boss-request-hook.js", "--tool", "claude-code"],
             "timeout": 10,
             "statusMessage": "Loading Yet Another Boss Request context"
           }

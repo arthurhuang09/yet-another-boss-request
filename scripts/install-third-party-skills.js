@@ -38,6 +38,7 @@ function parseArgs(argv) {
     list: false,
     names: [],
     targets: undefined,
+    tool: "",
     yes: false,
   }
 
@@ -51,10 +52,36 @@ function parseArgs(argv) {
     else if (arg === "--yes" || arg === "-y") args.yes = true
     else if (arg === "--include") args.names.push(argv[++index])
     else if (arg === "--target") args.targets = argv[++index].split(",").map((item) => item.trim())
+    else if (arg === "--tool") args.tool = argv[++index] || ""
     else if (!arg.startsWith("-")) args.names.push(arg)
   }
 
   return args
+}
+
+function normalizeTool(tool) {
+  const aliases = {
+    claude: "claude-code",
+    claude_code: "claude-code",
+    claudeCode: "claude-code",
+    opencode: "opencode",
+    codex: "codex",
+  }
+  return aliases[tool] || tool
+}
+
+function detectTool(args) {
+  if (args.tool) return normalizeTool(args.tool)
+  if (process.env.OPENCODE_YABR_TOOL) return normalizeTool(process.env.OPENCODE_YABR_TOOL)
+  if (process.env.CLAUDE_PROJECT_DIR) return "claude-code"
+  return "opencode"
+}
+
+function resolveTargets(manifest, args, tool) {
+  if (args.targets) return args.targets
+  const target = manifest.targets?.[tool]
+  if (!target) throw new Error(`No target configured for tool: ${tool}`)
+  return [target]
 }
 
 function isRestricted(skill) {
@@ -116,19 +143,27 @@ function installSkill(root, skill, targets, args) {
   }
 }
 
-function updateMemory(root, installed, args) {
+function updateMemory(root, installed, args, tool, targets) {
   if (args.dryRun) return
 
   const memoryPath = path.join(root, "memory", "index.json")
   const memory = readJson(memoryPath, { version: 1, activeCoolThing: null, recentCoolThings: [], coolThings: [] })
-  memory.thirdPartySkills = {
+  memory.thirdPartySkills ??= {}
+  memory.thirdPartySkills[tool] = {
     initializedAt: new Date().toISOString(),
+    targets,
     installed: installed.map((skill) => ({ name: skill.name, source: skill.source, license: skill.license })),
   }
   writeJson(memoryPath, memory)
 }
 
 function printList(manifest) {
+  console.log("Targets:")
+  for (const [tool, target] of Object.entries(manifest.targets || {})) {
+    console.log(`${tool}\t${target}`)
+  }
+  console.log("")
+  console.log("Skills:")
   for (const skill of manifest.skills) {
     const marker = skill.default ? "default" : "optional"
     const installable = skill.installable === false ? "not-installable" : "installable"
@@ -147,12 +182,15 @@ function main() {
     return
   }
 
-  const targets = args.targets || manifest.targets
+  const tool = detectTool(args)
+  const targets = resolveTargets(manifest, args, tool)
   const skills = selectedSkills(manifest, args)
   if (skills.length === 0) throw new Error("No skills selected")
 
   if (!args.yes && !args.dryRun) {
     console.log("This will install third-party skills from their source repositories.")
+    console.log(`Target tool: ${tool}`)
+    console.log(`Target directory: ${targets.join(", ")}`)
     console.log("Review THIRD_PARTY_SKILLS.md and each source license before continuing.")
     console.log("Re-run with --yes to continue.")
     return
@@ -163,7 +201,7 @@ function main() {
     installSkill(root, skill, targets, args)
     installed.push(skill)
   }
-  updateMemory(root, installed, args)
+  updateMemory(root, installed, args, tool, targets)
 }
 
 try {

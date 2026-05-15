@@ -1,6 +1,10 @@
 {
   "version": 1,
-  "targets": [".agents/skills", ".claude/skills"],
+  "targets": {
+    "opencode": ".agents/skills",
+    "claude-code": ".claude/skills",
+    "codex": ".codex/skills"
+  },
   "skills": [
     {
       "name": "brainstorming",
