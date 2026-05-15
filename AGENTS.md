@@ -1,61 +1,45 @@
 # Yet Another Boss Request Rules
 
-這個專案是「老闆想要一個酷酷的東西」工作台。所有 agent 進入本專案後，都要以 Yet Another Boss Request 模式協助使用者把模糊需求一路導向可交付成果。
-
-## Language
-
-- 永遠使用繁體中文回覆。
-- 回覆要直接、務實、簡潔。
+This project is a workspace for turning "the boss wants something cool" into a concrete deliverable. Every agent working in this project must use Yet Another Boss Request mode to guide vague requests into shippable artifacts.
 
 ## Startup Behavior
 
-- 在本專案的第一個有效回應中，先進入 Yet Another Boss Request。
-- 如果使用者只是打招呼、空白需求或問「可以做什麼」，要主動問：「今天想做什麼酷酷的東西？」
-- 如果使用者已經提出需求，不要再問空泛開場，直接判斷要開始新酷東西或續接既有酷東西。
-- 回應前先檢查 `memory/index.json` 與 `cool-things/*/state.md`，如果有未完成工作，先摘要最近狀態與下一步。
-- 如果 `memory/index.json` 沒有目前工具對應的 `thirdPartySkills.<tool>.initializedAt`，代表該工具的第三方 skills 尚未初始化；開始正式工作前，必須用 AskUserQuestion 詢問使用者是否安裝建議第三方 skills。使用者同意後執行對應工具的 `node scripts/install-third-party-skills.js --tool <tool> --yes`。
+- In the first effective response for this project, enter Yet Another Boss Request mode.
+- If the user only greets, gives an empty request, or asks what this workspace can do, ask: `今天想做什麼酷酷的東西？`
+- If the user already provided a concrete request, do not ask a generic opening question; decide whether to start a new cool thing or resume an existing one.
+- `YABR memory` means `memory/index.json` and `cool-things/*/state.md`.
+- `third-party skills` means the current tool's `thirdPartySkills.<tool>.initializedAt` entry in `memory/index.json`.
+- Before responding, inspect YABR memory. If there is unfinished work, summarize the latest status and next step first.
+- If `memory/index.json` does not contain the current tool's `thirdPartySkills.<tool>.initializedAt`, third-party skills are not initialized for this tool. Before starting formal work, use AskUserQuestion to ask whether to install the recommended third-party skills. If the user agrees, run `node scripts/install-third-party-skills.js --tool <tool> --yes` for the current tool.
 
 ## Yet Another Boss Request Workflow
 
-依需求狀態導航到合適階段：
+Route the request to the appropriate stage:
 
-1. `intake`：一句話想法、目標、限制、成功標準。
-2. `brainstorming`：拆成 2-3 個方向與取捨，需要第三方 skill。
-3. `grill-me`：追問風險、決策、邊界與驗收標準，需要第三方 skill。
-4. `customer-research`：搜尋市場、客戶、競品、社群訊號，需要第三方 skill。
-5. `prd` 或 `to-prd`：產出需求規格，需要第三方 skill。
-6. `product-designer`：補 UX 流程、資訊架構、互動假設，可選第三方 skill。
-7. `frontend-design`：製作可展示的 POC，需要第三方 skill。
-8. `web-design-guidelines`：檢查 UI、UX、accessibility 與設計品質，可選第三方 skill。
-9. `pptx` 或 `docx`：產出主管簡報或正式文件，需由使用者自行依授權安裝外部 skill。
+1. `intake`: Clarify the one-line idea, goal, constraints, and success criteria.
+2. `brainstorming`: Split the idea into 2-3 directions with tradeoffs. Requires a third-party skill.
+3. `grill-me`: Challenge risks, decisions, boundaries, and acceptance criteria. Requires a third-party skill.
+4. `customer-research`: Research market, customer, competitor, and community signals. Requires a third-party skill.
+5. `prd` or `to-prd`: Produce the requirement spec. Requires a third-party skill.
+6. `product-designer`: Define UX flow, information architecture, and interaction assumptions. Third-party skill is optional.
+7. `frontend-design`: Build a presentable POC. Requires a third-party skill.
+8. `web-design-guidelines`: Review UI, UX, accessibility, and design quality. Third-party skill is optional.
+9. `pptx` or `docx`: Produce an executive deck or formal document. The user must install external skills manually according to their licenses.
 
 ## Memory System
 
-- 每個酷東西都放在 `cool-things/<yyyy-mm-dd>-<slug>/`。
-- 每個酷東西至少要有 `state.md`，用來記錄階段、決策、產出、下一步。
-- 全域索引用 `memory/index.json` 管理最近工作與所有酷東西摘要。
-- 中斷後恢復時，先讀索引與狀態檔，再問使用者要續做哪一個或開始新的。
+- Store each cool thing under `cool-things/<yyyy-mm-dd>-<slug>/` with a `state.md` recording stage, decisions, artifacts, and next step.
+- Use `memory/index.json` as the global index for recent work and cool thing summaries.
+- When resuming, read YABR memory first, then ask whether to resume an existing cool thing or start a new one.
 
 ## Artifact Rules
 
-- 需求、研究、PRD、設計、POC、簡報、報告都要放在對應酷東西資料夾內。
-- 不要把不同酷東西的產出混在根目錄。
-- 更新任何酷東西的進度時，同步更新該資料夾的 `state.md`；必要時更新 `memory/index.json`。
+- Store all requirements, research, PRDs, designs, POCs, decks, and reports inside the matching cool thing folder, never in the repository root.
+- When updating progress for any cool thing, update that folder's `state.md`; update `memory/index.json` when needed.
 
-## First Response Template
+## First Response
 
-如果沒有明確需求，使用：
+Use the user's preferred language for first responses.
 
-```text
-今天想做什麼酷酷的東西？
-
-我可以幫你從一句模糊想法一路導航到：需求釐清、方案比較、客戶研究、PRD、UX、POC、UI 檢查、簡報或正式報告。
-```
-
-如果有未完成工作，使用：
-
-```text
-我看到上次有未完成的酷東西：<name>，目前在 <stage>，下一步是 <next_step>。
-
-今天要續做這個，還是開始新的酷東西？
-```
+- No concrete request: ask what cool thing they want to build today, then mention the workspace can guide intake, brainstorming, research, PRD, UX, POC, UI review, decks, and documents.
+- Unfinished work: summarize `<name>`, `<stage>`, and `<next_step>`, then ask whether to resume it or start a new cool thing.

@@ -1,6 +1,6 @@
 ---
 name: yet-another-boss-request
-description: Use when the user has a vague boss request, asks what this workspace can do, wants to start or resume a cool thing, or needs automatic navigation across brainstorming, research, PRD, UX, POC, review, deck, and document stages.
+description: Use when the user says "YABR", "start YABR", "啟動 YABR", or "Yet Another Boss Request"; has a vague boss request; asks what this workspace can do; wants to start or resume a cool thing; or needs automatic navigation across brainstorming, research, PRD, UX, POC, review, deck, and document stages.
 ---
 
 # Yet Another Boss Request

@@ -139,7 +139,7 @@ function buildContext(root, tool) {
     lines.push("")
     lines.push(`${toolLabel(tool)} 的第三方 skills 尚未初始化：`)
     lines.push("- 目前 repo 只內建 Yet Another Boss Request 核心 skill。")
-    lines.push("- 若使用者要開始正式工作，請先用 AskUserQuestion 詢問是否為目前工具安裝建議第三方 skills。")
+    lines.push("- 這是啟動檢查，不要等使用者提出第一個正式需求；請立即用 AskUserQuestion 詢問是否為目前工具安裝建議第三方 skills。")
     lines.push(`- 若使用者同意，執行：${toolInstallCommand(tool)}`)
     lines.push(`- 安裝後會更新 memory/index.json 的 thirdPartySkills.${tool}.initializedAt。`)
     lines.push("- 不要自動安裝 proprietary 或 unknown-license skills；請參考 THIRD_PARTY_SKILLS.md。")
