@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$(git rev-parse --show-toplevel)/scripts/yet-another-boss-request-hook.js\"",
+            "timeout": 10,
+            "statusMessage": "Loading Yet Another Boss Request context"
+          }
+        ]
+      }
+    ]
+  }
+}

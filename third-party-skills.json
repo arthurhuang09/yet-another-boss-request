@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "targets": [".agents/skills", ".claude/skills"],
+  "skills": [
+    {
+      "name": "brainstorming",
+      "source": "obra/superpowers",
+      "ref": "main",
+      "path": "skills/brainstorming",
+      "license": "MIT",
+      "default": true
+    },
+    {
+      "name": "customer-research",
+      "source": "coreyhaines31/marketingskills",
+      "ref": "main",
+      "path": "skills/customer-research",
+      "license": "MIT",
+      "default": true
+    },
+    {
+      "name": "frontend-design",
+      "source": "anthropics/skills",
+      "ref": "main",
+      "path": "skills/frontend-design",
+      "license": "Apache-2.0",
+      "default": true
+    },
+    {
+      "name": "grill-me",
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "path": "skills/productivity/grill-me",
+      "license": "MIT",
+      "default": true
+    },
+    {
+      "name": "prd",
+      "source": "github/awesome-copilot",
+      "ref": "main",
+      "path": "skills/prd",
+      "license": "MIT",
+      "default": true
+    },
+    {
+      "name": "to-prd",
+      "source": "mattpocock/skills",
+      "ref": "main",
+      "path": "skills/engineering/to-prd",
+      "license": "MIT",
+      "default": true
+    },
+    {
+      "name": "product-designer",
+      "source": "borghei/claude-skills",
+      "ref": "main",
+      "path": "product-team/product-designer",
+      "license": "MIT + Commons Clause",
+      "default": false,
+      "notes": "Optional. Commons Clause restricts selling this skill or substantially similar copies."
+    },
+    {
+      "name": "web-design-guidelines",
+      "source": "vercel-labs/agent-skills",
+      "ref": "main",
+      "path": "skills/web-design-guidelines",
+      "license": "unknown",
+      "default": false,
+      "notes": "Not installed by default because the source repository has no declared license."
+    },
+    {
+      "name": "docx",
+      "source": "anthropics/skills",
+      "ref": "main",
+      "path": "skills/docx",
+      "license": "proprietary",
+      "default": false,
+      "installable": false,
+      "notes": "Anthropic proprietary skill. Install only through authorized Anthropic services."
+    },
+    {
+      "name": "pptx",
+      "source": "anthropics/skills",
+      "ref": "main",
+      "path": "skills/pptx",
+      "license": "proprietary",
+      "default": false,
+      "installable": false,
+      "notes": "Anthropic proprietary skill. Install only through authorized Anthropic services."
+    }
+  ]
+}

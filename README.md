@@ -1,0 +1,176 @@
+# Yet Another Boss Request
+
+English | [繁體中文](README.zh-TW.md)
+
+Yet Another Boss Request is an agent workspace for handling vague requests like "the boss wants something cool." It helps turn an incomplete idea into concrete deliverables such as clarification questions, option comparison, customer research, PRDs, UX plans, POCs, UI reviews, slide decks, or formal documents.
+
+## Features
+
+1. OpenCode, Claude Code, and Codex can load the same routing rules and memory state through their own hooks/adapters.
+2. If you only say hello, the agent asks: "What boss-level nonsense are we shipping today?"
+3. If you provide a request directly, the agent starts or resumes a managed "cool thing" workflow.
+4. If previous work was interrupted, the agent reads `memory/index.json` and `cool-things/*/state.md`, then summarizes the current status and next step.
+
+## Supported Tools
+
+| Tool | Status | Notes |
+| --- | --- | --- |
+| OpenCode | Tested | Uses `.opencode/plugins/yet-another-boss-request.js` to send `auto prompt` automatically |
+| Claude Code | Configured | Uses the `SessionStart` hook in `.claude/settings.json` |
+| Codex | Configured | Uses `.codex/hooks.json` and `.codex/config.toml` |
+
+## Platform Notes
+
+| Platform | Config Files | Startup | Behavior |
+| --- | --- | --- | --- |
+| Claude Code | `.claude/settings.json`, `.claude/skills/` | Start Claude Code from the project root | Injects Yet Another Boss Request context on `SessionStart` |
+| Codex | `.codex/hooks.json`, `.codex/config.toml`, `.codex/skills/` | Start Codex from the project root | Injects Yet Another Boss Request context on `SessionStart` |
+| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and automatically sends `auto prompt` |
+
+Claude Code and Codex hooks mainly inject context. OpenCode additionally provides autostart by creating a session and sending the startup prompt. The Codex hook currently uses `git rev-parse --show-toplevel` to find the project root, so it should be run inside a Git repository.
+
+## Quick Start
+
+Start your agent tool from the project root, then type:
+
+```text
+Let's ship some boss-level nonsense.
+```
+
+Or provide a request directly:
+
+```text
+The boss wants an AI customer support portal. Help me clarify the requirements and turn it into a demo-ready POC.
+```
+
+To resume interrupted work, type:
+
+```text
+Resume the last boss-level thing.
+```
+
+## OpenCode Usage
+
+`opencode.json` points `skills.paths` to `.agents/skills`. Start OpenCode from this project root:
+
+```sh
+opencode .
+```
+
+The OpenCode adapter automatically sends this prompt when a new session starts:
+
+```text
+auto prompt
+```
+
+To temporarily disable autostart:
+
+```sh
+OPENCODE_YABR_AUTOSTART=0 opencode .
+```
+
+The OpenCode plugin depends on `@opencode-ai/sdk`. If the plugin does not load after a fresh clone, install dependencies inside `.opencode`:
+
+```sh
+npm install --prefix .opencode
+```
+
+Tested with OpenCode `1.14.51`.
+
+## Project Layout
+
+| Path | Purpose |
+| --- | --- |
+| `AGENTS.md` | Shared Yet Another Boss Request behavior rules |
+| `scripts/yet-another-boss-request-hook.js` | Shared context generator for OpenCode, Claude Code, and Codex |
+| `scripts/install-third-party-skills.js` | Optional third-party skill installer |
+| `third-party-skills.json` | Third-party skill install manifest |
+| `THIRD_PARTY_SKILLS.md` | Third-party skill license and install notes |
+| `.agents/skills/` | OpenCode project skills |
+| `.claude/settings.json` | Claude Code `SessionStart` hook |
+| `.claude/skills/` | Claude Code skills |
+| `.codex/hooks.json` | Codex `SessionStart` hook |
+| `.codex/config.toml` | Codex hooks feature config |
+| `.codex/skills/yet-another-boss-request/SKILL.md` | Yet Another Boss Request skill for Codex |
+| `.opencode/plugins/yet-another-boss-request.js` | OpenCode plugin adapter |
+| `memory/index.json` | Global memory index and active cool thing pointer |
+| `cool-things/` | Per-request working folders |
+| `templates/cool-thing-state.md` | Template for each cool thing state file |
+
+## Workflow
+
+1. `intake`: Clarify the idea, goal, constraints, and success criteria.
+2. `brainstorming`: Split the idea into 2-3 directions with tradeoffs. Requires an optional third-party skill.
+3. `grill-me`: Stress-test risks, decisions, boundaries, and acceptance criteria. Requires an optional third-party skill.
+4. `customer-research`: Search market, customer, competitor, and community signals. Requires an optional third-party skill.
+5. `prd` or `to-prd`: Produce the requirement spec. Requires an optional third-party skill.
+6. `product-designer`: Add UX flows, information architecture, and interaction assumptions. Optional third-party skill.
+7. `frontend-design`: Build a presentable POC. Requires an optional third-party skill.
+8. `web-design-guidelines`: Review UI, UX, accessibility, and design quality. Optional third-party skill.
+9. Optional external `pptx` or `docx` skills: Produce an executive deck or formal document.
+
+## Memory System
+
+Each cool thing should live under:
+
+```text
+cool-things/<yyyy-mm-dd>-<slug>/
+```
+
+Each folder should include at least:
+
+```text
+state.md
+```
+
+Suggested artifact layout:
+
+```text
+cool-things/2026-05-15-ai-customer-service/
+state.md
+brief.md
+research.md
+prd.md
+ux.md
+poc/
+deck.md
+report.md
+```
+
+`memory/index.json` tracks the active cool thing, recent work, and summaries. Whenever the workflow stage changes, update the corresponding `state.md`; update `memory/index.json` when needed.
+
+## Core Skill
+
+| Skill | Purpose |
+| --- | --- |
+| `yet-another-boss-request` | Route stages, resume memory, and select the right skill |
+
+## Third-Party Skill Setup
+
+This repository does not vendor third-party skills by default. On first startup, Yet Another Boss Request checks `memory/index.json`. If `thirdPartySkills.initializedAt` is missing, it asks whether you want to install the recommended third-party skills.
+
+To install the default recommended set manually:
+
+```sh
+node scripts/install-third-party-skills.js --yes
+```
+
+To list all available third-party skills:
+
+```sh
+node scripts/install-third-party-skills.js --list
+```
+
+The installer writes `memory/index.json` with `thirdPartySkills.initializedAt` after installation. See `THIRD_PARTY_SKILLS.md` for license details and optional restricted skills.
+
+## Optional External Skills
+
+`pptx` and `docx` are not installed by this repository because the Anthropic-provided versions are proprietary and restrict redistribution. If you have access to those skills through Anthropic services, install them separately and follow their original license terms.
+
+## Open Source Notes
+
+Third-party skills come from multiple sources and are installed from `third-party-skills.json` only after user approval. Check `THIRD_PARTY_SKILLS.md` and each source license before redistributing or packaging installed skills. This repository intentionally does not include proprietary Anthropic `docx` and `pptx` skills.
+
+## License
+
+This project is licensed under the MIT License. Third-party skills and bundled files remain governed by their original licenses.
