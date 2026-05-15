@@ -39,7 +39,11 @@ function shouldAutoStart() {
 }
 
 function startupPrompt() {
-  return "auto prompt"
+  return [
+    "start YABR",
+    "Read YABR memory and run the startup check.",
+    "If third-party skills are missing, immediately ask via AskUserQuestion whether to install them.",
+  ].join("\n")
 }
 
 function makeV2Client(client) {
