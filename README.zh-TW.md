@@ -1,5 +1,7 @@
 # Yet Another Boss Request
 
+![Yet Another Boss Request 橫幅](assets/yabr-banner.png)
+
 [English](README.md) | 繁體中文
 
 Yet Another Boss Request 是一個用來處理「老闆想要一個酷酷的東西」這類模糊需求的 agent 工作台。它會把一句不完整的想法導向可交付成果，例如需求釐清、方案比較、客戶研究、PRD、UX、POC、UI 檢查、簡報或正式報告。

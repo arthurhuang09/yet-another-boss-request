@@ -1,5 +1,7 @@
 # Yet Another Boss Request
 
+![Yet Another Boss Request banner](assets/yabr-banner.png)
+
 English | [繁體中文](README.zh-TW.md)
 
 Yet Another Boss Request is an agent workspace for handling vague requests like "the boss wants something cool." It helps turn an incomplete idea into concrete deliverables such as clarification questions, option comparison, customer research, PRDs, UX plans, POCs, UI reviews, slide decks, or formal documents.
