@@ -92,7 +92,7 @@ npm install --prefix .opencode
 | `third-party-skills.json` | 第三方 skill 安裝清單 |
 | `THIRD_PARTY_SKILLS.md` | 第三方 skill 授權與安裝說明 |
 | `.copier-answers.yml` | scaffolded workspace 內由 Copier 產生的 metadata |
-| `.yabr-workspace.yml` | scaffolded workspace 內由 YABR 產生的 workspace metadata |
+| `.yabr-workspace.yml` | scaffolded workspace 內由 Copier render 的 YABR workspace metadata |
 | `.agents/skills/` | OpenCode project skills |
 | `.claude/settings.json` | Claude Code `SessionStart` hook |
 | `.claude/skills/` | Claude Code skills |

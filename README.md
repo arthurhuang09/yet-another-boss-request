@@ -92,7 +92,7 @@ Tested with OpenCode `1.14.51`.
 | `third-party-skills.json` | Third-party skill install manifest |
 | `THIRD_PARTY_SKILLS.md` | Third-party skill license and install notes |
 | `.copier-answers.yml` | Generated Copier metadata in scaffolded workspaces |
-| `.yabr-workspace.yml` | Generated YABR workspace metadata in scaffolded workspaces |
+| `.yabr-workspace.yml` | Copier-rendered YABR workspace metadata in scaffolded workspaces |
 | `.agents/skills/` | OpenCode project skills |
 | `.claude/settings.json` | Claude Code `SessionStart` hook |
 | `.claude/skills/` | Claude Code skills |
