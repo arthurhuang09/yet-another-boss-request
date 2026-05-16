@@ -26,7 +26,7 @@ For changes involving `copier.yml`, `*.jinja`, generated metadata, or runtime up
 - `copier update` examples tell users to keep the target repository clean and preview with `--pretend` first.
 - `.copier-answers.yml` is described as Copier metadata, not manually maintained state.
 - `.yabr-workspace.yml` is described as rendered from `.yabr-workspace.yml.jinja`.
-- `memory/**` and `cool-things/**` are protected from template updates.
+- `memory/index.json` and `cool-things/**` are protected from template updates.
 - Third-party skill directories for OpenCode, Claude Code, and Codex are excluded from template updates.
 - Core `yet-another-boss-request` runtime files remain managed by the template.
 
