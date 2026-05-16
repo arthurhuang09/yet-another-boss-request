@@ -104,15 +104,30 @@ Tested with OpenCode `1.14.51`.
 | `cool-things/` | Per-request working folders |
 | `templates/cool-thing-state.md` | Template for each cool thing state file |
 
+## Platform Support
+
+YABR is currently tested on macOS and Linux-like environments. Windows users should use WSL for now. Native Windows support is not yet tested because the documented setup and adoption commands use POSIX shell utilities such as `mktemp`, `cp`, and `sh`.
+
 ## Runtime Updates
 
 Workspaces created from this repository should treat YABR runtime files separately from their own memory and artifacts. YABR uses [Copier](https://copier.readthedocs.io/) for template lifecycle updates instead of a custom updater.
 
-Install Copier:
+Install Copier with `pipx` so it is available as a CLI without modifying your system Python:
 
 ```sh
-python3 -m pip install copier
+brew install pipx
+pipx install copier
 ```
+
+For a temporary test environment, use a virtual environment instead:
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install copier
+```
+
+Avoid global `python3 -m pip install copier` unless you intentionally manage Python CLI tools that way.
 
 Create a new workspace from this template:
 

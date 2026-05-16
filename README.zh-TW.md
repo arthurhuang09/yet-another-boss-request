@@ -104,15 +104,30 @@ npm install --prefix .opencode
 | `cool-things/` | 每次酷東西的獨立工作資料夾 |
 | `templates/cool-thing-state.md` | 每個酷東西的狀態檔模板 |
 
+## 平台支援
+
+YABR 目前主要測試於 macOS 與 Linux-like 環境。Windows 使用者目前建議透過 WSL 執行；原生 Windows 尚未正式測試，因為文件中的 setup 與 adoption 指令使用 `mktemp`、`cp`、`sh` 等 POSIX shell 工具。
+
 ## Runtime 更新
 
 從此 repository 建立出來的 workspace，應該把 YABR runtime 檔案和自己的 memory / artifacts 分開處理。YABR 使用 [Copier](https://copier.readthedocs.io/) 管理 template lifecycle update，不再維護自製 updater。
 
-安裝 Copier：
+建議用 `pipx` 安裝 Copier，讓它成為可直接使用的 CLI，同時不修改系統 Python：
 
 ```sh
-python3 -m pip install copier
+brew install pipx
+pipx install copier
 ```
+
+如果只是臨時測試，可以改用 virtual environment：
+
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install copier
+```
+
+除非你本來就刻意用全域 pip 管理 Python CLI 工具，否則不建議使用全域 `python3 -m pip install copier`。
 
 從 template 建立新 workspace：
 
