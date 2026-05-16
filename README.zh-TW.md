@@ -135,17 +135,15 @@ python -m pip install copier
 copier copy gh:arthurhuang09/yet-another-boss-request ../yabr-workspace
 ```
 
-更新既有 Copier-managed workspace：
+當 YABR 發布新 tag 後，更新既有 Copier-managed workspace：
 
 ```sh
 cd ../yabr-workspace
-git status --short
 copier update --pretend
 copier update
-git diff
 ```
 
-更新前請先 commit 或 stash 本地變更。`copier update --pretend` 只預覽、不寫檔。正式套用後，檢查 `git diff`、跑平常的驗證，再在 workspace repository commit 這次 runtime update。
+請從 workspace root 執行更新。Copier 會使用 `.copier-answers.yml` 找到原始 template，並更新到最新 tag。更新前請保持 workspace clean；`copier update --pretend` 只預覽、不寫檔。正式套用後，檢查 `git diff`、跑平常的驗證，再在 workspace repository commit 這次 runtime update。
 
 Copier 會在 scaffolded workspace 寫入 `.copier-answers.yml`，用來追蹤 template source 與 revision，並從 `.yabr-workspace.yml.jinja` render `.yabr-workspace.yml` 作為輕量 workspace metadata。`copier.yml` 對 `memory/index.json` 與 `cool-things/**` 使用 `_skip_if_exists`，避免 template update 取代本地工作。第三方 skill 目錄會從 template 排除；核心 `yet-another-boss-request` skills 仍由 Copier 管理。`copier.yml` 只保留在 template repository，不會複製到 generated workspace。
 

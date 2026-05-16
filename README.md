@@ -135,17 +135,15 @@ Create a new workspace from this template:
 copier copy gh:arthurhuang09/yet-another-boss-request ../yabr-workspace
 ```
 
-Update an existing Copier-managed workspace:
+Update an existing Copier-managed workspace when a new YABR tag is published:
 
 ```sh
 cd ../yabr-workspace
-git status --short
 copier update --pretend
 copier update
-git diff
 ```
 
-Commit or stash local changes before updating. `copier update --pretend` previews the update without writing files. After applying the update, inspect `git diff`, run your normal checks, then commit the runtime update in the workspace repository.
+Run updates from the workspace root. Copier uses `.copier-answers.yml` to find the original template and update to the latest tag. Keep the workspace clean before updating; `copier update --pretend` previews the update without writing files. After applying the update, inspect `git diff`, run your normal checks, then commit the runtime update in the workspace repository.
 
 Copier writes `.copier-answers.yml` in scaffolded workspaces to track the template source and revision, and renders `.yabr-workspace.yml` from `.yabr-workspace.yml.jinja` with lightweight workspace metadata. `copier.yml` uses `_skip_if_exists` for `memory/index.json` and `cool-things/**` so local work is not replaced by template updates. Third-party skill directories are excluded from the template; the core `yet-another-boss-request` skills remain managed by Copier. `copier.yml` itself stays in the template repository and is not copied into generated workspaces.
 
