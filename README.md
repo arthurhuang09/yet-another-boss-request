@@ -60,7 +60,9 @@ opencode .
 The OpenCode adapter automatically sends this prompt when a new session starts:
 
 ```text
-auto prompt
+start YABR
+Read YABR memory and run the startup check.
+If third-party skills are missing, immediately ask via AskUserQuestion whether to install them.
 ```
 
 To temporarily disable autostart:
@@ -82,10 +84,14 @@ Tested with OpenCode `1.14.51`.
 | Path | Purpose |
 | --- | --- |
 | `AGENTS.md` | Shared Yet Another Boss Request behavior rules |
+| `copier.yml` | Copier template lifecycle and update configuration |
+| `{{ _copier_conf.answers_file }}.jinja` | Copier answers metadata template |
 | `scripts/yet-another-boss-request-hook.js` | Shared context generator for OpenCode, Claude Code, and Codex |
 | `scripts/install-third-party-skills.js` | Optional third-party skill installer |
 | `third-party-skills.json` | Third-party skill install manifest |
 | `THIRD_PARTY_SKILLS.md` | Third-party skill license and install notes |
+| `.copier-answers.yml` | Generated Copier metadata in scaffolded workspaces |
+| `.yabr-workspace.yml` | Generated YABR workspace metadata in scaffolded workspaces |
 | `.agents/skills/` | OpenCode project skills |
 | `.claude/settings.json` | Claude Code `SessionStart` hook |
 | `.claude/skills/` | Claude Code skills |
@@ -96,6 +102,52 @@ Tested with OpenCode `1.14.51`.
 | `memory/index.json` | Global memory index and active cool thing pointer |
 | `cool-things/` | Per-request working folders |
 | `templates/cool-thing-state.md` | Template for each cool thing state file |
+
+## Runtime Updates
+
+Workspaces created from this repository should treat YABR runtime files separately from their own memory and artifacts. YABR uses [Copier](https://copier.readthedocs.io/) for template lifecycle updates instead of a custom updater.
+
+Install Copier:
+
+```sh
+python3 -m pip install copier
+```
+
+Create a new workspace from this template:
+
+```sh
+copier copy gh:arthurhuang09/yet-another-boss-request ../cool-things
+```
+
+Update an existing Copier-managed workspace:
+
+```sh
+cd ../cool-things
+git status --short
+copier update --pretend
+copier update
+git diff
+```
+
+Commit or stash local changes before updating. `copier update --pretend` previews the update without writing files. After applying the update, inspect `git diff`, run your normal checks, then commit the runtime update in the workspace repository.
+
+Copier writes `.copier-answers.yml` in scaffolded workspaces to track the template source and revision. YABR also writes `.yabr-workspace.yml` with lightweight workspace metadata. `copier.yml` uses `_skip_if_exists` for `memory/index.json` and `cool-things/**` so local work is not replaced by template updates. Third-party skill directories are excluded from the template; the core `yet-another-boss-request` skills remain managed by Copier. `copier.yml` itself stays in the template repository and is not copied into generated workspaces.
+
+For an existing workspace that was copied before Copier was introduced, adopt Copier metadata first:
+
+```sh
+cd ../cool-things
+git status --short
+tmpdir="$(mktemp -d)"
+copier copy --defaults --trust gh:arthurhuang09/yet-another-boss-request "$tmpdir/yabr"
+cp "$tmpdir/yabr/.copier-answers.yml" .
+cp "$tmpdir/yabr/.yabr-workspace.yml" .
+git add .copier-answers.yml .yabr-workspace.yml
+git commit -m "Adopt YABR Copier metadata"
+copier update --pretend
+```
+
+Only run `copier update` after the pretend update looks correct. Keep the target repository clean before updating so Copier can surface conflicts clearly.
 
 ## Workflow
 

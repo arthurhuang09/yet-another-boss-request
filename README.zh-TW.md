@@ -60,7 +60,9 @@ opencode .
 OpenCode adapter 會在新 session 建立後自動送出：
 
 ```text
-auto prompt
+start YABR
+Read YABR memory and run the startup check.
+If third-party skills are missing, immediately ask via AskUserQuestion whether to install them.
 ```
 
 若要暫時關閉自動啟動：
@@ -82,10 +84,14 @@ npm install --prefix .opencode
 | Path | 用途 |
 | --- | --- |
 | `AGENTS.md` | 跨工具共用的 Yet Another Boss Request 行為規則 |
+| `copier.yml` | Copier template lifecycle 與更新設定 |
+| `{{ _copier_conf.answers_file }}.jinja` | Copier answers metadata template |
 | `scripts/yet-another-boss-request-hook.js` | OpenCode、Claude Code、Codex 共用的導航 context 產生器 |
 | `scripts/install-third-party-skills.js` | Optional third-party skill 安裝器 |
 | `third-party-skills.json` | 第三方 skill 安裝清單 |
 | `THIRD_PARTY_SKILLS.md` | 第三方 skill 授權與安裝說明 |
+| `.copier-answers.yml` | scaffolded workspace 內由 Copier 產生的 metadata |
+| `.yabr-workspace.yml` | scaffolded workspace 內由 YABR 產生的 workspace metadata |
 | `.agents/skills/` | OpenCode project skills |
 | `.claude/settings.json` | Claude Code `SessionStart` hook |
 | `.claude/skills/` | Claude Code skills |
@@ -96,6 +102,52 @@ npm install --prefix .opencode
 | `memory/index.json` | 全域記憶索引與目前 active 酷東西 |
 | `cool-things/` | 每次酷東西的獨立工作資料夾 |
 | `templates/cool-thing-state.md` | 每個酷東西的狀態檔模板 |
+
+## Runtime 更新
+
+從此 repository 建立出來的 workspace，應該把 YABR runtime 檔案和自己的 memory / artifacts 分開處理。YABR 使用 [Copier](https://copier.readthedocs.io/) 管理 template lifecycle update，不再維護自製 updater。
+
+安裝 Copier：
+
+```sh
+python3 -m pip install copier
+```
+
+從 template 建立新 workspace：
+
+```sh
+copier copy gh:arthurhuang09/yet-another-boss-request ../cool-things
+```
+
+更新既有 Copier-managed workspace：
+
+```sh
+cd ../cool-things
+git status --short
+copier update --pretend
+copier update
+git diff
+```
+
+更新前請先 commit 或 stash 本地變更。`copier update --pretend` 只預覽、不寫檔。正式套用後，檢查 `git diff`、跑平常的驗證，再在 workspace repository commit 這次 runtime update。
+
+Copier 會在 scaffolded workspace 寫入 `.copier-answers.yml`，用來追蹤 template source 與 revision。YABR 也會寫入 `.yabr-workspace.yml` 作為輕量 workspace metadata。`copier.yml` 對 `memory/index.json` 與 `cool-things/**` 使用 `_skip_if_exists`，避免 template update 取代本地工作。第三方 skill 目錄會從 template 排除；核心 `yet-another-boss-request` skills 仍由 Copier 管理。`copier.yml` 只保留在 template repository，不會複製到 generated workspace。
+
+如果既有 workspace 是在導入 Copier 前直接複製建立，請先採用 Copier metadata：
+
+```sh
+cd ../cool-things
+git status --short
+tmpdir="$(mktemp -d)"
+copier copy --defaults --trust gh:arthurhuang09/yet-another-boss-request "$tmpdir/yabr"
+cp "$tmpdir/yabr/.copier-answers.yml" .
+cp "$tmpdir/yabr/.yabr-workspace.yml" .
+git add .copier-answers.yml .yabr-workspace.yml
+git commit -m "Adopt YABR Copier metadata"
+copier update --pretend
+```
+
+確認 pretend update 看起來正確後，再執行 `copier update`。更新前請保持 target repository clean，讓 Copier 能清楚顯示衝突。
 
 ## 工作流
 

@@ -1,0 +1,28 @@
+_min_copier_version: "9.0.0"
+
+workspace_name:
+  type: str
+  default: "{{ _copier_conf.dst_path.name }}"
+  help: Workspace display name used only for Copier metadata.
+
+_exclude:
+  - copier.yml
+  - copier.yaml
+  - .git
+  - .git/**
+  - .DS_Store
+  - .env
+  - .env.*
+  - .claude/settings.local.json
+  - .opencode/node_modules/**
+  - .opencode/*.log
+  - .agents/skills/brainstorming/**
+  - .agents/skills/customer-research/**
+  - .agents/skills/frontend-design/**
+  - .agents/skills/grill-me/**
+  - .agents/skills/prd/**
+  - .agents/skills/to-prd/**
+
+_skip_if_exists:
+  - memory/index.json
+  - cool-things/**
