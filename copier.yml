@@ -1,0 +1,52 @@
+_min_copier_version: "9.0.0"
+
+workspace_name:
+  type: str
+  default: "{{ _copier_conf.dst_path.name }}"
+  help: Workspace display name used only for Copier metadata.
+
+_exclude:
+  - copier.yml
+  - copier.yaml
+  - .git
+  - .git/**
+  - .DS_Store
+  - .env
+  - .env.*
+  - .claude/settings.local.json
+  - .opencode/node_modules/**
+  - .opencode/*.log
+  - .agents/skills/brainstorming/**
+  - .agents/skills/customer-research/**
+  - .agents/skills/frontend-design/**
+  - .agents/skills/grill-me/**
+  - .agents/skills/product-designer/**
+  - .agents/skills/prd/**
+  - .agents/skills/to-prd/**
+  - .agents/skills/web-design-guidelines/**
+  - .agents/skills/docx/**
+  - .agents/skills/pptx/**
+  - .claude/skills/brainstorming/**
+  - .claude/skills/customer-research/**
+  - .claude/skills/frontend-design/**
+  - .claude/skills/grill-me/**
+  - .claude/skills/product-designer/**
+  - .claude/skills/prd/**
+  - .claude/skills/to-prd/**
+  - .claude/skills/web-design-guidelines/**
+  - .claude/skills/docx/**
+  - .claude/skills/pptx/**
+  - .codex/skills/brainstorming/**
+  - .codex/skills/customer-research/**
+  - .codex/skills/frontend-design/**
+  - .codex/skills/grill-me/**
+  - .codex/skills/product-designer/**
+  - .codex/skills/prd/**
+  - .codex/skills/to-prd/**
+  - .codex/skills/web-design-guidelines/**
+  - .codex/skills/docx/**
+  - .codex/skills/pptx/**
+
+_skip_if_exists:
+  - memory/index.json
+  - cool-things/**
