@@ -15,7 +15,7 @@ Yet Another Boss Request is an agent workspace for handling vague requests like 
 
 | Tool | Status | Notes |
 | --- | --- | --- |
-| OpenCode | Tested | Uses `.opencode/plugins/yet-another-boss-request.js` to send `auto prompt` automatically |
+| OpenCode | Tested | Uses `.opencode/plugins/yet-another-boss-request.js` to send the `start YABR` startup prompt automatically |
 | Claude Code | Configured | Uses the `SessionStart` hook in `.claude/settings.json` |
 | Codex | Configured | Uses `.codex/hooks.json` and `.codex/config.toml` |
 
@@ -25,7 +25,7 @@ Yet Another Boss Request is an agent workspace for handling vague requests like 
 | --- | --- | --- | --- |
 | Claude Code | `.claude/settings.json`, `.claude/skills/` | Start Claude Code from the project root | Injects Yet Another Boss Request context on `SessionStart` |
 | Codex | `.codex/hooks.json`, `.codex/config.toml`, `.codex/skills/` | Start Codex from the project root | Injects Yet Another Boss Request context on `SessionStart` |
-| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and automatically sends `auto prompt` |
+| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and automatically sends the `start YABR` startup prompt |
 
 Claude Code and Codex hooks mainly inject context. OpenCode additionally provides autostart by creating a session and sending the startup prompt. The Codex hook currently uses `git rev-parse --show-toplevel` to find the project root, so it should be run inside a Git repository.
 
@@ -84,8 +84,8 @@ Tested with OpenCode `1.14.51`.
 | Path | Purpose |
 | --- | --- |
 | `AGENTS.md` | Shared Yet Another Boss Request behavior rules |
-| `copier.yml` | Copier template lifecycle and update configuration |
-| `{{ _copier_conf.answers_file }}.jinja` | Copier answers metadata template |
+| `copier.yml` | Template repo only: Copier lifecycle and update configuration |
+| `{{ _copier_conf.answers_file }}.jinja` | Template repo only: Copier answers metadata template |
 | `scripts/yet-another-boss-request-hook.js` | Shared context generator for OpenCode, Claude Code, and Codex |
 | `scripts/install-third-party-skills.js` | Optional third-party skill installer |
 | `third-party-skills.json` | Third-party skill install manifest |
@@ -116,13 +116,13 @@ python3 -m pip install copier
 Create a new workspace from this template:
 
 ```sh
-copier copy gh:arthurhuang09/yet-another-boss-request ../cool-things
+copier copy gh:arthurhuang09/yet-another-boss-request ../yabr-workspace
 ```
 
 Update an existing Copier-managed workspace:
 
 ```sh
-cd ../cool-things
+cd ../yabr-workspace
 git status --short
 copier update --pretend
 copier update
@@ -136,10 +136,10 @@ Copier writes `.copier-answers.yml` in scaffolded workspaces to track the templa
 For an existing workspace that was copied before Copier was introduced, adopt Copier metadata first:
 
 ```sh
-cd ../cool-things
+cd ../yabr-workspace
 git status --short
 tmpdir="$(mktemp -d)"
-copier copy --defaults --trust gh:arthurhuang09/yet-another-boss-request "$tmpdir/yabr"
+copier copy --defaults gh:arthurhuang09/yet-another-boss-request "$tmpdir/yabr"
 cp "$tmpdir/yabr/.copier-answers.yml" .
 cp "$tmpdir/yabr/.yabr-workspace.yml" .
 git add .copier-answers.yml .yabr-workspace.yml
