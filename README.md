@@ -86,6 +86,7 @@ Tested with OpenCode `1.14.51`.
 | `AGENTS.md` | Shared Yet Another Boss Request behavior rules |
 | `copier.yml` | Template repo only: Copier lifecycle and update configuration |
 | `{{ _copier_conf.answers_file }}.jinja` | Template repo only: Copier answers metadata template |
+| `.yabr-workspace.yml.jinja` | Template repo only: YABR workspace metadata template |
 | `scripts/yet-another-boss-request-hook.js` | Shared context generator for OpenCode, Claude Code, and Codex |
 | `scripts/install-third-party-skills.js` | Optional third-party skill installer |
 | `third-party-skills.json` | Third-party skill install manifest |
@@ -131,7 +132,7 @@ git diff
 
 Commit or stash local changes before updating. `copier update --pretend` previews the update without writing files. After applying the update, inspect `git diff`, run your normal checks, then commit the runtime update in the workspace repository.
 
-Copier writes `.copier-answers.yml` in scaffolded workspaces to track the template source and revision. YABR also writes `.yabr-workspace.yml` with lightweight workspace metadata. `copier.yml` uses `_skip_if_exists` for `memory/index.json` and `cool-things/**` so local work is not replaced by template updates. Third-party skill directories are excluded from the template; the core `yet-another-boss-request` skills remain managed by Copier. `copier.yml` itself stays in the template repository and is not copied into generated workspaces.
+Copier writes `.copier-answers.yml` in scaffolded workspaces to track the template source and revision, and renders `.yabr-workspace.yml` from `.yabr-workspace.yml.jinja` with lightweight workspace metadata. `copier.yml` uses `_skip_if_exists` for `memory/index.json` and `cool-things/**` so local work is not replaced by template updates. Third-party skill directories are excluded from the template; the core `yet-another-boss-request` skills remain managed by Copier. `copier.yml` itself stays in the template repository and is not copied into generated workspaces.
 
 For an existing workspace that was copied before Copier was introduced, adopt Copier metadata first:
 
@@ -139,9 +140,10 @@ For an existing workspace that was copied before Copier was introduced, adopt Co
 cd ../yabr-workspace
 git status --short
 tmpdir="$(mktemp -d)"
-copier copy --defaults gh:arthurhuang09/yet-another-boss-request "$tmpdir/yabr"
-cp "$tmpdir/yabr/.copier-answers.yml" .
-cp "$tmpdir/yabr/.yabr-workspace.yml" .
+workspace_name="$(basename "$PWD")"
+copier copy --defaults --data "workspace_name=$workspace_name" gh:arthurhuang09/yet-another-boss-request "$tmpdir/$workspace_name"
+cp "$tmpdir/$workspace_name/.copier-answers.yml" .
+cp "$tmpdir/$workspace_name/.yabr-workspace.yml" .
 git add .copier-answers.yml .yabr-workspace.yml
 git commit -m "Adopt YABR Copier metadata"
 copier update --pretend

@@ -86,6 +86,7 @@ npm install --prefix .opencode
 | `AGENTS.md` | 跨工具共用的 Yet Another Boss Request 行為規則 |
 | `copier.yml` | Template repo only：Copier lifecycle 與更新設定 |
 | `{{ _copier_conf.answers_file }}.jinja` | Template repo only：Copier answers metadata template |
+| `.yabr-workspace.yml.jinja` | Template repo only：YABR workspace metadata template |
 | `scripts/yet-another-boss-request-hook.js` | OpenCode、Claude Code、Codex 共用的導航 context 產生器 |
 | `scripts/install-third-party-skills.js` | Optional third-party skill 安裝器 |
 | `third-party-skills.json` | 第三方 skill 安裝清單 |
@@ -131,7 +132,7 @@ git diff
 
 更新前請先 commit 或 stash 本地變更。`copier update --pretend` 只預覽、不寫檔。正式套用後，檢查 `git diff`、跑平常的驗證，再在 workspace repository commit 這次 runtime update。
 
-Copier 會在 scaffolded workspace 寫入 `.copier-answers.yml`，用來追蹤 template source 與 revision。YABR 也會寫入 `.yabr-workspace.yml` 作為輕量 workspace metadata。`copier.yml` 對 `memory/index.json` 與 `cool-things/**` 使用 `_skip_if_exists`，避免 template update 取代本地工作。第三方 skill 目錄會從 template 排除；核心 `yet-another-boss-request` skills 仍由 Copier 管理。`copier.yml` 只保留在 template repository，不會複製到 generated workspace。
+Copier 會在 scaffolded workspace 寫入 `.copier-answers.yml`，用來追蹤 template source 與 revision，並從 `.yabr-workspace.yml.jinja` render `.yabr-workspace.yml` 作為輕量 workspace metadata。`copier.yml` 對 `memory/index.json` 與 `cool-things/**` 使用 `_skip_if_exists`，避免 template update 取代本地工作。第三方 skill 目錄會從 template 排除；核心 `yet-another-boss-request` skills 仍由 Copier 管理。`copier.yml` 只保留在 template repository，不會複製到 generated workspace。
 
 如果既有 workspace 是在導入 Copier 前直接複製建立，請先採用 Copier metadata：
 
@@ -139,9 +140,10 @@ Copier 會在 scaffolded workspace 寫入 `.copier-answers.yml`，用來追蹤 t
 cd ../yabr-workspace
 git status --short
 tmpdir="$(mktemp -d)"
-copier copy --defaults gh:arthurhuang09/yet-another-boss-request "$tmpdir/yabr"
-cp "$tmpdir/yabr/.copier-answers.yml" .
-cp "$tmpdir/yabr/.yabr-workspace.yml" .
+workspace_name="$(basename "$PWD")"
+copier copy --defaults --data "workspace_name=$workspace_name" gh:arthurhuang09/yet-another-boss-request "$tmpdir/$workspace_name"
+cp "$tmpdir/$workspace_name/.copier-answers.yml" .
+cp "$tmpdir/$workspace_name/.yabr-workspace.yml" .
 git add .copier-answers.yml .yabr-workspace.yml
 git commit -m "Adopt YABR Copier metadata"
 copier update --pretend
