@@ -3,6 +3,8 @@ import path from "node:path"
 import { spawnSync } from "node:child_process"
 import { OpencodeClient } from "@opencode-ai/sdk/v2"
 
+const MAX_TRACKED_SESSIONS = 100
+
 function findProjectRoot(start) {
   let current = path.resolve(start || process.cwd())
   while (true) {
@@ -70,6 +72,13 @@ function isSessionCreatedEvent(event) {
   return event?.type === "session.created" || event?.name === "session.created.1"
 }
 
+function rememberSession(set, sessionID) {
+  set.add(sessionID)
+  while (set.size > MAX_TRACKED_SESSIONS) {
+    set.delete(set.values().next().value)
+  }
+}
+
 async function sessionHasMessages(v2, root, sessionID) {
   const result = await v2.session.messages({ directory: root, sessionID, limit: 1 })
   const messages = unwrapData(result)
@@ -120,11 +129,11 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
 
       const sessionID = eventSessionID(event)
       if (!sessionID || state.sessions.has(sessionID) || state.pending.has(sessionID)) return
-      state.pending.add(sessionID)
+      rememberSession(state.pending, sessionID)
 
       try {
         await autoStartNavigator(client, root, sessionID, log)
-        state.sessions.add(sessionID)
+        rememberSession(state.sessions, sessionID)
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         await log(`Yet Another Boss Request autostart failed: ${message}`, "error").catch(() => {})
