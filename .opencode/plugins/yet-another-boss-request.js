@@ -3,6 +3,8 @@ import path from "node:path"
 import { spawnSync } from "node:child_process"
 import { OpencodeClient } from "@opencode-ai/sdk/v2"
 
+const MAX_TRACKED_SESSIONS = 100
+
 function findProjectRoot(start) {
   let current = path.resolve(start || process.cwd())
   while (true) {
@@ -34,8 +36,12 @@ function loadNavigatorContext(root) {
   return result.stdout.trim()
 }
 
+function hasExplicitSessionArg(argv = process.argv) {
+  return argv.some((arg) => arg === "-s" || arg === "--session" || arg.startsWith("--session="))
+}
+
 function shouldAutoStart() {
-  return process.env.OPENCODE_YABR_AUTOSTART !== "0"
+  return process.env.OPENCODE_YABR_AUTOSTART !== "0" && !hasExplicitSessionArg()
 }
 
 function startupPrompt() {
@@ -58,40 +64,43 @@ function unwrapData(result) {
   return result?.data
 }
 
-async function autoStartNavigator(client, root, log) {
+function eventSessionID(event) {
+  return event?.properties?.sessionID || event?.data?.sessionID || ""
+}
+
+function isSessionCreatedEvent(event) {
+  return event?.type === "session.created" || event?.name === "session.created.1"
+}
+
+function rememberSession(set, sessionID) {
+  set.add(sessionID)
+  while (set.size > MAX_TRACKED_SESSIONS) {
+    set.delete(set.values().next().value)
+  }
+}
+
+async function sessionHasMessages(v2, root, sessionID) {
+  const result = await v2.session.messages({ directory: root, sessionID, limit: 1 })
+  const messages = unwrapData(result)
+  return Array.isArray(messages) && messages.length > 0
+}
+
+async function autoStartNavigator(client, root, sessionID, log) {
   if (!shouldAutoStart()) return
+  if (!sessionID) return
 
   const v2 = makeV2Client(client)
   if (!v2) return
 
-  const created = await v2.session.create({
-    directory: root,
-    title: "Yet Another Boss Request",
-  })
-  const session = unwrapData(created)
-  const sessionID = session?.id
-  if (!sessionID) return
+  if (await sessionHasMessages(v2, root, sessionID)) return
 
   await v2.session.promptAsync({
     sessionID,
+    directory: root,
     parts: [{ type: "text", text: startupPrompt() }],
   })
 
-  try {
-    await v2.tui.selectSession({ directory: root, sessionID })
-  } catch {
-    // Autostart still succeeds even if the TUI cannot switch sessions.
-  }
-
   await log("Yet Another Boss Request promptAsync autostart submitted")
-}
-
-function scheduleAutoStart(client, root, log) {
-  if (!shouldAutoStart()) return
-
-  setTimeout(() => {
-    autoStartNavigator(client, root, log).catch(() => {})
-  }, 1500)
 }
 
 export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree }) => {
@@ -99,32 +108,37 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
   const context = loadNavigatorContext(root)
   let injected = false
   const stateKey = "__yetAnotherBossRequestAutostart"
-  globalThis[stateKey] ??= { scheduled: false, started: false }
+  globalThis[stateKey] ??= {}
   const state = globalThis[stateKey]
+  state.sessions ??= new Set()
+  state.pending ??= new Set()
 
-  const log = async (message) => {
+  const log = async (message, level = "info") => {
     await client.app.log({
       body: {
         service: "yet-another-boss-request",
-        level: "info",
+        level,
         message,
       },
     })
   }
 
-  if (!state.scheduled) {
-    state.scheduled = true
-    scheduleAutoStart(client, root, async (message) => {
-      if (state.started) return
-      state.started = true
-      await log(message)
-    })
-  }
-
   return {
     async event({ event }) {
-      if (event.type === "session.created") {
-        await log("Yet Another Boss Request context loaded")
+      if (!isSessionCreatedEvent(event)) return
+
+      const sessionID = eventSessionID(event)
+      if (!sessionID || state.sessions.has(sessionID) || state.pending.has(sessionID)) return
+      rememberSession(state.pending, sessionID)
+
+      try {
+        await autoStartNavigator(client, root, sessionID, log)
+        rememberSession(state.sessions, sessionID)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        await log(`Yet Another Boss Request autostart failed: ${message}`, "error").catch(() => {})
+      } finally {
+        state.pending.delete(sessionID)
       }
     },
 

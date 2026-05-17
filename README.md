@@ -27,9 +27,9 @@ Yet Another Boss Request is an agent workspace for handling vague requests like 
 | --- | --- | --- | --- |
 | Claude Code | `.claude/settings.json`, `.claude/skills/` | Start Claude Code from the project root | Injects Yet Another Boss Request context on `SessionStart` |
 | Codex | `.codex/hooks.json`, `.codex/config.toml`, `.codex/skills/` | Start Codex from the project root | Injects Yet Another Boss Request context on `SessionStart` |
-| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and automatically sends the `start YABR` startup prompt |
+| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and sends the `start YABR` startup prompt to newly created empty sessions |
 
-Claude Code and Codex hooks mainly inject context. OpenCode additionally provides autostart by creating a session and sending the startup prompt. The Codex hook currently uses `git rev-parse --show-toplevel` to find the project root, so it should be run inside a Git repository.
+Claude Code and Codex hooks mainly inject context. OpenCode additionally provides autostart by sending the startup prompt to newly created empty sessions without taking over sessions selected with `opencode -s`. The Codex hook currently uses `git rev-parse --show-toplevel` to find the project root, so it should be run inside a Git repository.
 
 ## Quick Start
 
@@ -59,7 +59,7 @@ Resume the last boss-level thing.
 opencode .
 ```
 
-The OpenCode adapter automatically sends this prompt when a new session starts:
+The OpenCode adapter automatically sends this prompt when a newly created session is empty:
 
 ```text
 start YABR
