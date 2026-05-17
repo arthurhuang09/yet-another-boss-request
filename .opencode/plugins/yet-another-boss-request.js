@@ -99,14 +99,16 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
   const context = loadNavigatorContext(root)
   let injected = false
   const stateKey = "__yetAnotherBossRequestAutostart"
-  globalThis[stateKey] ??= { sessions: new Set() }
+  globalThis[stateKey] ??= {}
   const state = globalThis[stateKey]
+  state.sessions ??= new Set()
+  state.pending ??= new Set()
 
-  const log = async (message) => {
+  const log = async (message, level = "info") => {
     await client.app.log({
       body: {
         service: "yet-another-boss-request",
-        level: "info",
+        level,
         message,
       },
     })
@@ -117,10 +119,18 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
       if (!isSessionCreatedEvent(event)) return
 
       const sessionID = eventSessionID(event)
-      if (!sessionID || state.sessions.has(sessionID)) return
-      state.sessions.add(sessionID)
+      if (!sessionID || state.sessions.has(sessionID) || state.pending.has(sessionID)) return
+      state.pending.add(sessionID)
 
-      await autoStartNavigator(client, root, sessionID, log).catch(() => {})
+      try {
+        await autoStartNavigator(client, root, sessionID, log)
+        state.sessions.add(sessionID)
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error)
+        await log(`Yet Another Boss Request autostart failed: ${message}`, "error").catch(() => {})
+      } finally {
+        state.pending.delete(sessionID)
+      }
     },
 
     async "experimental.chat.system.transform"(_input, output) {
