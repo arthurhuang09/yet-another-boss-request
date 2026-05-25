@@ -67,13 +67,13 @@ Read YABR memory and run the startup check.
 If third-party skills are missing, immediately ask via AskUserQuestion whether to install them.
 ```
 
-OpenCode Desktop usually infers a usable model automatically. If autostart creates an empty `YABR Startup` session or fails with provider/model errors, set an explicit Desktop default model in `opencode.json`:
+OpenCode Desktop usually infers a usable model automatically. If autostart creates an empty `YABR Startup` session or fails with provider/model errors, set an explicit Desktop default model in `.opencode/opencode.json` so Copier updates do not overwrite your local override:
 
 ```json
 {
   "plugin": [
     [
-      "./.opencode/plugins/yet-another-boss-request.js",
+      "./plugins/yet-another-boss-request.js",
       {
         "desktopDefaultModel": "provider/model-id"
       }

@@ -402,7 +402,7 @@ async function sendStartupPrompt(client, v2, root, sessionID, log, options) {
 
   if (await sessionHasMessages(v2, root, sessionID, log)) {
     await log?.(`startup prompt skipped because session already has messages: sessionID=${sessionID}`, "info")
-    return
+    return false
   }
 
   await log?.(`calling session.promptAsync: sessionID=${sessionID}`, "info")
@@ -616,7 +616,10 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
       }
 
       try {
-        if (await sessionHasMessages(v2, root, sessionID, log)) return
+        if (await sessionHasMessages(v2, root, sessionID, log)) {
+          rememberSession(state.firstMessages, sessionID)
+          return
+        }
       } catch {
         await log(`chat.message skipped: failed to inspect messages for ${sessionID}`, "debug")
         return

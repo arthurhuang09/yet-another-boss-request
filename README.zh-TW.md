@@ -67,13 +67,13 @@ Read YABR memory and run the startup check.
 If third-party skills are missing, immediately ask via AskUserQuestion whether to install them.
 ```
 
-OpenCode Desktop 通常會自動推斷可用 model。如果 autostart 產生空的 `YABR Startup` session，或出現 provider/model 錯誤，可以在 `opencode.json` 明確指定 Desktop 預設 model：
+OpenCode Desktop 通常會自動推斷可用 model。如果 autostart 產生空的 `YABR Startup` session，或出現 provider/model 錯誤，可以在 `.opencode/opencode.json` 明確指定 Desktop 預設 model，避免 Copier 更新覆蓋你的本機 override：
 
 ```json
 {
   "plugin": [
     [
-      "./.opencode/plugins/yet-another-boss-request.js",
+      "./plugins/yet-another-boss-request.js",
       {
         "desktopDefaultModel": "provider/model-id"
       }
