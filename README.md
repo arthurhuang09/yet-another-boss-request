@@ -106,6 +106,7 @@ Tested with OpenCode TUI `1.14.51`. OpenCode Desktop prompt autostart requires D
 | `copier.yml` | Template repo only: Copier lifecycle and update configuration |
 | `{{ _copier_conf.answers_file }}.jinja` | Template repo only: Copier answers metadata template |
 | `.yabr-workspace.yml.jinja` | Template repo only: YABR workspace metadata template |
+| `opencode.json.jinja` | Template repo only: generated workspace OpenCode config; keep it in sync with local `opencode.json` |
 | `scripts/yet-another-boss-request-hook.js` | Shared context generator for OpenCode, Claude Code, and Codex |
 | `scripts/install-third-party-skills.js` | Optional third-party skill installer |
 | `third-party-skills.json` | Third-party skill install manifest |

@@ -106,6 +106,7 @@ npm install --prefix .opencode
 | `copier.yml` | Template repo only：Copier lifecycle 與更新設定 |
 | `{{ _copier_conf.answers_file }}.jinja` | Template repo only：Copier answers metadata template |
 | `.yabr-workspace.yml.jinja` | Template repo only：YABR workspace metadata template |
+| `opencode.json.jinja` | Template repo only：generated workspace 的 OpenCode config；需和本地 `opencode.json` 保持同步 |
 | `scripts/yet-another-boss-request-hook.js` | OpenCode、Claude Code、Codex 共用的導航 context 產生器 |
 | `scripts/install-third-party-skills.js` | Optional third-party skill 安裝器 |
 | `third-party-skills.json` | 第三方 skill 安裝清單 |

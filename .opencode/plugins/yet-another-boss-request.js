@@ -459,6 +459,7 @@ async function retryDesktopStartupPrompt(client, v2, root, sessionID, log, state
   if (!submitted) return
 
   rememberSession(state.sessions, sessionID)
+  rememberSession(state.autostartRoots, root)
   await log?.(`Desktop provider retry submitted startup prompt: sessionID=${sessionID} delayMs=${delayMs}`, "info")
 }
 
@@ -527,6 +528,7 @@ async function createStartupSession(client, root, log, state, options) {
     const submitted = await autoStartNavigator(client, root, sessionID, log, options)
     if (submitted) {
       rememberSession(state.sessions, sessionID)
+      rememberSession(state.autostartRoots, root)
     } else {
       scheduleDesktopProviderRetry(client, v2, root, sessionID, log, state, options)
     }
@@ -550,6 +552,8 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
   state.pendingRoots ??= new Set()
   state.firstMessages ??= new Set()
   state.startupRoots ??= new Set()
+  state.sessionCreatedRoots ??= new Set()
+  state.autostartRoots ??= new Set()
   state.desktopProviderRetries ??= new Set()
 
   const log = async (message, level = "info") => {
@@ -568,6 +572,10 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
 
   setTimeout(() => {
     log(`startup timer fired after ${STARTUP_DELAY_MS}ms`, "debug")
+    if (state.sessionCreatedRoots.has(root) || state.autostartRoots.has(root)) {
+      log(`startup timer skipped: session.created already observed for root=${root}`, "debug")
+      return
+    }
     createStartupSession(client, root, log, state, effectiveOptions).catch(async (error) => {
       const message = error instanceof Error ? error.message : String(error)
       await log(`Yet Another Boss Request startup failed: ${message}`, "error").catch(() => {})
@@ -590,12 +598,16 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
         await log(`session.created event skipped: sessionID=${sessionID || "(missing)"} seen=${state.sessions.has(sessionID)} pending=${state.pending.has(sessionID)}`, "debug")
         return
       }
+      rememberSession(state.sessionCreatedRoots, root)
       rememberSession(state.pending, sessionID)
 
       try {
         await sleep(500)
         const submitted = await autoStartNavigator(client, root, sessionID, log, effectiveOptions)
-        if (submitted) rememberSession(state.sessions, sessionID)
+        if (submitted) {
+          rememberSession(state.sessions, sessionID)
+          rememberSession(state.autostartRoots, root)
+        }
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         await log(`Yet Another Boss Request autostart failed: ${message}`, "error").catch(() => {})
