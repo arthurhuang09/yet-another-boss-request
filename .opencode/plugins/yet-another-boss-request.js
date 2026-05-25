@@ -65,7 +65,8 @@ function hasExplicitSessionArg(argv = process.argv) {
 
 function latestOpenCodeMainLaunchArgs() {
   try {
-    const logDir = path.join(process.env.HOME || "", ".local/share/opencode/log")
+    if (!process.env.HOME) return []
+    const logDir = path.join(process.env.HOME, ".local/share/opencode/log")
     if (!fs.existsSync(logDir)) return []
 
     const logs = fs
@@ -479,6 +480,10 @@ async function autoStartNavigator(client, root, sessionID, log, options) {
 
 async function createStartupSession(client, root, log, state, options) {
   await log(`createStartupSession entered: shouldAutoStart=${shouldAutoStart()} shouldPromptAsyncAutoStart=${shouldPromptAsyncAutoStart()} startupRootSeen=${state.startupRoots.has(root)} pendingRoot=${state.pendingRoots.has(root)} ${runtimeSnapshot(root, options)}`, "debug")
+  if (!isDesktopRuntime()) {
+    await log("createStartupSession skipped: startup session bootstrap is Desktop-only", "debug")
+    return false
+  }
   if (!shouldPromptAsyncAutoStart()) {
     await log("createStartupSession skipped: autostart disabled", "debug")
     return false
@@ -498,9 +503,6 @@ async function createStartupSession(client, root, log, state, options) {
     return false
   }
 
-  // Mark before creating the session. Desktop can create the session but fail
-  // prompt submission; retrying that path would spam empty startup sessions.
-  state.startupRoots.add(root)
   state.pendingRoots.add(root)
 
   try {
@@ -520,6 +522,7 @@ async function createStartupSession(client, root, log, state, options) {
     }
 
     await log(`Yet Another Boss Request startup session created: ${sessionID}`)
+    state.startupRoots.add(root)
 
     const submitted = await autoStartNavigator(client, root, sessionID, log, options)
     if (submitted) {
