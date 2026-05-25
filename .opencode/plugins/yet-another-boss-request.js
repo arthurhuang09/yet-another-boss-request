@@ -367,6 +367,10 @@ function eventSessionTitle(event) {
   return event?.properties?.info?.title || event?.properties?.session?.title || event?.data?.title || event?.data?.session?.title || ""
 }
 
+function eventName(event) {
+  return event?.type || event?.name || "unknown"
+}
+
 function isSessionCreatedEvent(event) {
   return event?.type === "session.created" || event?.name === "session.created.1"
 }
@@ -431,7 +435,7 @@ async function sendStartupPrompt(client, v2, root, sessionID, log, options) {
 
 function scheduleDesktopProviderRetry(client, v2, root, sessionID, log, state, options) {
   if (!isDesktopRuntime() || !sessionID || state.desktopProviderRetries.has(sessionID)) return
-  state.desktopProviderRetries.add(sessionID)
+  rememberSession(state.desktopProviderRetries, sessionID)
   awaitableLog(log, `Desktop provider retry scheduled: sessionID=${sessionID} delays=${DESKTOP_PROVIDER_RETRY_DELAYS_MS.join(",")}`, "info")
 
   for (const delayMs of DESKTOP_PROVIDER_RETRY_DELAYS_MS) {
@@ -523,7 +527,7 @@ async function createStartupSession(client, root, log, state, options) {
     }
 
     await log(`Yet Another Boss Request startup session created: ${sessionID}`)
-    state.startupRoots.add(root)
+    rememberSession(state.startupRoots, root)
 
     const submitted = await autoStartNavigator(client, root, sessionID, log, options)
     if (submitted) {
@@ -585,10 +589,10 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
   return {
     async event({ event }) {
       if (!isSessionCreatedEvent(event)) return
-      await log(`session.created event received: event=${JSON.stringify(event)}`, "debug")
 
       const sessionID = eventSessionID(event)
       const title = eventSessionTitle(event)
+      await log(`session.created event received: event=${eventName(event)} sessionID=${sessionID || "(missing)"} title=${title || "(missing)"}`, "debug")
       if (isDesktopRuntime() && title === "YABR Startup") {
         await log(`session.created event skipped for plugin-created Desktop startup session: sessionID=${sessionID || "(missing)"} title=${title}`, "debug")
         return
