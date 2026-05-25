@@ -17,7 +17,7 @@ Yet Another Boss Request is an agent workspace for handling vague requests like 
 
 | Tool | Status | Notes |
 | --- | --- | --- |
-| OpenCode | Tested | Uses `.opencode/plugins/yet-another-boss-request.js` to send the `start YABR` startup prompt automatically |
+| OpenCode | Tested | Uses `.opencode/plugins/yet-another-boss-request.js` to start YABR automatically for new empty sessions |
 | Claude Code | Configured | Uses the `SessionStart` hook in `.claude/settings.json` |
 | Codex | Configured | Uses `.codex/hooks.json` and `.codex/config.toml` |
 
@@ -27,9 +27,9 @@ Yet Another Boss Request is an agent workspace for handling vague requests like 
 | --- | --- | --- | --- |
 | Claude Code | `.claude/settings.json`, `.claude/skills/` | Start Claude Code from the project root | Injects Yet Another Boss Request context on `SessionStart` |
 | Codex | `.codex/hooks.json`, `.codex/config.toml`, `.codex/skills/` | Start Codex from the project root | Injects Yet Another Boss Request context on `SessionStart` |
-| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and sends the `start YABR` startup prompt to newly created empty sessions |
+| OpenCode | `opencode.json`, `.opencode/plugins/`, `.agents/skills/` | Run `opencode .` | Loads project skills and starts YABR from the `session.created` event for newly created empty sessions |
 
-Claude Code and Codex hooks mainly inject context. OpenCode additionally provides autostart by sending the startup prompt to newly created empty sessions without taking over sessions selected with `opencode -s`. The Codex hook currently uses `git rev-parse --show-toplevel` to find the project root, so it should be run inside a Git repository.
+Claude Code and Codex hooks mainly inject context. OpenCode additionally provides autostart from the `session.created` event for newly created empty sessions without taking over sessions selected with `opencode -s`. For Desktop clients that only create a frontend draft on New Session, the plugin falls back to prepending the YABR startup prompt to the first user message in that session. The Codex hook currently uses `git rev-parse --show-toplevel` to find the project root, so it should be run inside a Git repository.
 
 ## Quick Start
 
@@ -59,13 +59,30 @@ Resume the last boss-level thing.
 opencode .
 ```
 
-The OpenCode adapter automatically sends this prompt when a newly created session is empty:
+The OpenCode adapter starts this prompt from the `session.created` event when a newly created session is empty:
 
 ```text
 start YABR
 Read YABR memory and run the startup check.
 If third-party skills are missing, immediately ask via AskUserQuestion whether to install them.
 ```
+
+OpenCode Desktop usually infers a usable model automatically. If autostart creates an empty `YABR Startup` session or fails with provider/model errors, set an explicit Desktop default model in `opencode.json`:
+
+```json
+{
+  "plugin": [
+    [
+      "./.opencode/plugins/yet-another-boss-request.js",
+      {
+        "desktopDefaultModel": "provider/model-id"
+      }
+    ]
+  ]
+}
+```
+
+Use a model ID available in your OpenCode Desktop model picker or `/api/model`.
 
 To temporarily disable autostart:
 
@@ -79,7 +96,7 @@ The OpenCode plugin depends on `@opencode-ai/sdk`. If the plugin does not load a
 npm install --prefix .opencode
 ```
 
-Tested with OpenCode `1.14.51`.
+Tested with OpenCode TUI `1.14.51`. OpenCode Desktop prompt autostart requires Desktop `>= 1.15.10`; older Desktop versions still use the first-message fallback.
 
 ## Project Layout
 
