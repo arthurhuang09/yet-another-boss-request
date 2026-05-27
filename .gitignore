@@ -19,4 +19,5 @@ cool-things/*
 !.codex/skills/yet-another-boss-request/**
 
 .opencode/node_modules/
+.opencode/opencode.json
 .opencode/*.log
