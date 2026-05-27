@@ -339,8 +339,8 @@ async function desktopPromptDefaults(v2, root, log, options) {
 
     const model =
       desktopDefaultModel(providerData, modelData, options) ||
-      configuredModel(providerData, modelData, config) ||
       firstFreeOpencodeModel(providerData, modelData) ||
+      configuredModel(providerData, modelData, config) ||
       firstAvailableModel(providerData, modelData)
     const agent = desktopAgent(config)
     await log?.(`Desktop prompt defaults resolved: agent=${agent} model=${model ? `${model.providerID}/${model.modelID}` : "(missing)"}`, "debug")
@@ -485,10 +485,6 @@ async function autoStartNavigator(client, root, sessionID, log, options) {
 
 async function createStartupSession(client, root, log, state, options) {
   await log(`createStartupSession entered: shouldAutoStart=${shouldAutoStart()} shouldPromptAsyncAutoStart=${shouldPromptAsyncAutoStart()} startupRootSeen=${state.startupRoots.has(root)} pendingRoot=${state.pendingRoots.has(root)} ${runtimeSnapshot(root, options)}`, "debug")
-  if (!isDesktopRuntime()) {
-    await log("createStartupSession skipped: startup session bootstrap is Desktop-only", "debug")
-    return false
-  }
   if (!shouldPromptAsyncAutoStart()) {
     await log("createStartupSession skipped: autostart disabled", "debug")
     return false
@@ -556,7 +552,6 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
   state.pendingRoots ??= new Set()
   state.firstMessages ??= new Set()
   state.startupRoots ??= new Set()
-  state.sessionCreatedRoots ??= new Set()
   state.autostartRoots ??= new Set()
   state.desktopProviderRetries ??= new Set()
 
@@ -576,8 +571,8 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
 
   setTimeout(() => {
     log(`startup timer fired after ${STARTUP_DELAY_MS}ms`, "debug")
-    if (state.sessionCreatedRoots.has(root) || state.autostartRoots.has(root)) {
-      log(`startup timer skipped: session.created already observed for root=${root}`, "debug")
+    if (state.pendingRoots.has(root) || state.autostartRoots.has(root)) {
+      log(`startup timer skipped: autostart already pending or submitted for root=${root}`, "debug")
       return
     }
     createStartupSession(client, root, log, state, effectiveOptions).catch(async (error) => {
@@ -602,8 +597,8 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
         await log(`session.created event skipped: sessionID=${sessionID || "(missing)"} seen=${state.sessions.has(sessionID)} pending=${state.pending.has(sessionID)}`, "debug")
         return
       }
-      rememberSession(state.sessionCreatedRoots, root)
       rememberSession(state.pending, sessionID)
+      rememberSession(state.pendingRoots, root)
 
       try {
         await sleep(500)
@@ -617,6 +612,7 @@ export const YetAnotherBossRequestPlugin = async ({ client, directory, worktree 
         await log(`Yet Another Boss Request autostart failed: ${message}`, "error").catch(() => {})
       } finally {
         state.pending.delete(sessionID)
+        state.pendingRoots.delete(root)
       }
     },
 

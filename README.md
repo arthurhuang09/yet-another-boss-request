@@ -82,7 +82,7 @@ OpenCode Desktop usually infers a usable model automatically. If autostart creat
 }
 ```
 
-Use a model ID available in your OpenCode Desktop model picker or `/api/model`.
+Use a model ID available in your OpenCode Desktop model picker or `/api/model`. This file is a local override and should not be committed.
 
 To temporarily disable autostart:
 
